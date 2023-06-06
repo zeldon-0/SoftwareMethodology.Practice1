@@ -59,6 +59,10 @@ public class Map
             throw new ArgumentException("The coordinates of a country should be within the range of 1 to 10. " +
                                         $"{country.Name} failed the validation");
 
+        if (country.Xl > country.Xh || country.Yl > country.Yh)
+            throw new ArgumentException("The lower left edge's coordinates should not have a higher absolute value than the top right ones. " +
+                                        $"{country.Name} failed the validation");
+
         var validCities = new List<City>();
         var allCountryNames = allCountries.Select(c => c.Name).ToList();
         for (var x = country.Xl; x <= country.Xh; x++)

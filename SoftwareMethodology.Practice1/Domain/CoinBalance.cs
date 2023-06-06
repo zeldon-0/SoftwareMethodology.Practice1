@@ -4,7 +4,6 @@ public class CoinBalance
 {
     public string CountryMotif { get; }
     public int Amount { get; private set; }
-
     private int _pendingAmount;
     
     public CoinBalance(string countryMotif, int amount)
@@ -18,8 +17,5 @@ public class CoinBalance
 
     public void Decrease(int transactionAmount) => _pendingAmount -= transactionAmount;
 
-    public void CommitTransaction()
-    {
-        Amount = _pendingAmount;
-    }
+    public void CommitTransaction() => Amount = _pendingAmount;
 }

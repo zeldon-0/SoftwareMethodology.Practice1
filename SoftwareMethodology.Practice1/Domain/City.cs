@@ -6,8 +6,7 @@ public class City
     private const int REPRESENTATIVE_PORTION_SIZE = 1000;
     private IReadOnlyCollection<City> _neighbours;
     private readonly IReadOnlyCollection<CoinBalance> _balances;
-
-    public int _xCoordinate;
+    private readonly int _xCoordinate;
     private readonly int _yCoordinate;
 
     public City(List<string> countryMotifs, string countryName, int xCoordinate, int yCoordinate)

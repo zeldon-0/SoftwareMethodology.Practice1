@@ -8,8 +8,8 @@ try
     foreach (var testCase in testCases)
     {
         Console.WriteLine($"Case Number {testCase.Number}");
-        var grid = new Map(testCase.Countries.ToList());
-        Console.Write(grid.RunSimulation());
+        var map = new Map(testCase.Countries.ToList());
+        Console.Write(map.RunSimulation());
     }
 }
 catch (Exception e)
