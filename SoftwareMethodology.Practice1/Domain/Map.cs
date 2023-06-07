@@ -5,6 +5,7 @@ public class Map
 {
     private const int Width = 10;
     private const int Length = 10;
+    private const int MaxCountryNameLength = 25;
 
     private List<City> Cities = new();
     public List<Country> Countries = new();
@@ -13,7 +14,7 @@ public class Map
     {
         foreach (var country in countries)
         {
-            AttachCountry(country, countries);
+            AttachCountry(country);
         }
 
         AttachNeighbouringCities();
@@ -51,18 +52,28 @@ public class Map
         return stringBuilder.ToString();
     }
 
-    private void AttachCountry(Country country, IReadOnlyCollection<Country> allCountries)
+    private void AttachCountry(Country country)
     {
         if (country.Xl < 1 || country.Xl > Width ||
             country.Xh < 1 || country.Xh > Width ||
             country.Yl < 1 || country.Yl > Length ||
             country.Yh < 1 || country.Yh > Length)
+        {
             throw new ArgumentException("The coordinates of a country should be within the range of 1 to 10. " +
                                         $"{country.Name} failed the validation");
+        }
 
         if (country.Xl > country.Xh || country.Yl > country.Yh)
-            throw new ArgumentException("The lower left edge's coordinates should not have a higher absolute value than the top right ones. " +
-                                        $"{country.Name} failed the validation");
+        {
+            throw new ArgumentException(
+                "The lower left edge's coordinates should not have a higher absolute value than the top right ones. " +
+                $"{country.Name} failed the validation");
+        }
+
+        if (country.Name.Length > MaxCountryNameLength)
+        {
+            throw new ArgumentException($"Expected the country name to be no longer than 25 characters. Got {country.Name.Length}, instead.");
+        }
 
         var validCities = new List<City>();
         for (var x = country.Xl; x <= country.Xh; x++)
