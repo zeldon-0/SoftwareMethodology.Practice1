@@ -17,15 +17,16 @@ public class Map
         }
 
         AttachNeighbouringCities();
+        InitializeCityCoinBalances();
     }
 
     public string RunSimulation()
     {
         var currentDay = 0;
 
-        foreach (var country in Countries)
+        foreach (var incompleteCountry in Countries.Where(c => !c.IsComplete()))
         {
-            country.RefreshCompletionResult(currentDay);
+            incompleteCountry.RefreshCompletionResult(currentDay);
         }
 
         while (Countries.Any(c => !c.IsComplete()))
@@ -64,7 +65,6 @@ public class Map
                                         $"{country.Name} failed the validation");
 
         var validCities = new List<City>();
-        var allCountryNames = allCountries.Select(c => c.Name).ToList();
         for (var x = country.Xl; x <= country.Xh; x++)
         {
             for (var y = country.Yl; y <= country.Yh; y++)
@@ -72,7 +72,7 @@ public class Map
                 if (Countries.Any(c => c.TerritoryIncludesCoordinates(x, y)))
                     throw new ArgumentException("Two or more countries' territories are overlapping. Check your input and try again.");
 
-                validCities.Add(new City(allCountryNames, country.Name, x, y));
+                validCities.Add(new City(country.Name, x, y));
             }
         }
 
@@ -90,6 +90,30 @@ public class Map
                 .ToList();
 
             city.AttachNeighbours(neighbours);
+        }
+    }
+
+    private void InitializeCityCoinBalances()
+    {
+        var countriesWithNeighbours = Countries
+            .Where(c => c.Cities.Any(ct => ct.SharesBordersWithAnotherCountry()))
+            .Select(c => c.Name)
+            .ToList();
+
+        foreach (var country in Countries.Where(c => countriesWithNeighbours.Contains(c.Name)))
+        {
+            foreach (var city in country.Cities)
+            {
+                city.InitializeCoinBalances(countriesWithNeighbours);
+            }
+        }
+
+        foreach (var country in Countries.Where(c => !countriesWithNeighbours.Contains(c.Name)))
+        {
+            foreach (var city in country.Cities)
+            {
+                city.InitializeCoinBalances(new List<string> {country.Name});
+            }
         }
     }
 

@@ -53,5 +53,16 @@ public class MapTests
             "Belgium 2\n" +
             "Netherlands 2\n"
         };
+
+        yield return new object[]
+        {
+            new List<Country>
+            {
+                new("Netherlands", 1, 1, 2, 2),
+                new("Belgium", 5, 5, 6, 6)
+            },
+            "Belgium 0\n" +
+            "Netherlands 0\n"
+        };
     }
 }

@@ -5,13 +5,14 @@ public class City
     private const int INITIAL_HOME_COUNTRY_COINS_COUNT = 1000000;
     private const int REPRESENTATIVE_PORTION_SIZE = 1000;
     private IReadOnlyCollection<City> _neighbours;
-    private readonly IReadOnlyCollection<CoinBalance> _balances;
+    private IReadOnlyCollection<CoinBalance> _balances;
     private readonly int _xCoordinate;
     private readonly int _yCoordinate;
+    private readonly string _countryName;
 
-    public City(List<string> countryMotifs, string countryName, int xCoordinate, int yCoordinate)
+    public City(string countryName, int xCoordinate, int yCoordinate)
     {
-        _balances = countryMotifs.Select(m => ComposeInitialBalance(m, countryName)).ToList();
+        _countryName = countryName;
         _xCoordinate = xCoordinate;
         _yCoordinate = yCoordinate;
     }
@@ -26,6 +27,9 @@ public class City
     }
 
     public void AttachNeighbours(IReadOnlyCollection<City> neighbourCities) => _neighbours = neighbourCities;
+
+    public void InitializeCoinBalances(IReadOnlyCollection<string> neighbouringCountryMotifs) 
+        => _balances = neighbouringCountryMotifs.Select(ComposeInitialBalance).ToList();
 
     public void TransportCoins()
     {
@@ -56,9 +60,11 @@ public class City
 
     public bool IsComplete() => _balances.All(c => c.Amount > 0);
 
-    private CoinBalance ComposeInitialBalance(string cityCountry, string countryMotif)
+    public bool SharesBordersWithAnotherCountry() => _neighbours.Any(n => n._countryName != _countryName);
+
+    private CoinBalance ComposeInitialBalance(string cityCountry)
     {
-        var initialCoinsCount = countryMotif == cityCountry ? INITIAL_HOME_COUNTRY_COINS_COUNT : 0;
+        var initialCoinsCount = _countryName == cityCountry ? INITIAL_HOME_COUNTRY_COINS_COUNT : 0;
 
         return new CoinBalance(cityCountry, initialCoinsCount);
     }
