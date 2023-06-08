@@ -46,7 +46,7 @@ public class City
 
     public void ReceiveCoins(int amount, string countryMotif)
     {
-        var targetBalance = _balances.Single(b => b.CountryMotif == countryMotif);
+        var targetBalance = _balances.Single(balance => balance.CountryMotif == countryMotif);
         targetBalance.Increase(amount);
     }
 
@@ -58,9 +58,9 @@ public class City
         }
     }
 
-    public bool IsComplete() => _balances.All(c => c.Amount > 0);
+    public bool IsComplete() => _balances.All(balance => balance.Amount > 0);
 
-    public bool SharesBordersWithAnotherCountry() => _neighbours.Any(n => n._countryName != _countryName);
+    public bool SharesBordersWithAnotherCountry() => _neighbours.Any(neighbour => neighbour._countryName != _countryName);
 
     private CoinBalance ComposeInitialBalance(string cityCountry)
     {

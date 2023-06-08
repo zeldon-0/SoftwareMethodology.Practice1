@@ -3,8 +3,9 @@ using SoftwareMethodology.Practice1.Domain;
 
 public class Map
 {
-    private const int Width = 10;
-    private const int Length = 10;
+    private const int MinCoordinateValue = 1;
+    private const int MaxWidth = 10;
+    private const int MaxLength = 10;
     private const int MaxCountryNameLength = 25;
 
     private List<City> Cities = new();
@@ -25,16 +26,16 @@ public class Map
     {
         var currentDay = 0;
 
-        foreach (var incompleteCountry in Countries.Where(c => !c.IsComplete()))
+        foreach (var incompleteCountry in Countries.Where(country => !country.IsComplete()))
         {
             incompleteCountry.RefreshCompletionResult(currentDay);
         }
 
-        while (Countries.Any(c => !c.IsComplete()))
+        while (Countries.Any(country => !country.IsComplete()))
         {
             currentDay++;
             RunTransactionsForTheDay();
-            foreach (var incompleteCountry in Countries.Where(c => !c.IsComplete()))
+            foreach (var incompleteCountry in Countries.Where(country => !country.IsComplete()))
             {
                 incompleteCountry.RefreshCompletionResult(currentDay);
             }
@@ -43,8 +44,8 @@ public class Map
         var stringBuilder = new StringBuilder();
 
         foreach (var country in Countries
-                     .OrderBy(c => c.GetCompletionTime())
-                     .ThenBy(c => c.Name))
+                     .OrderBy(country => country.GetCompletionTime())
+                     .ThenBy(country => country.Name))
         {
             stringBuilder.Append($"{country.Name} {country.GetCompletionTime()}\n");
         }
@@ -54,12 +55,13 @@ public class Map
 
     private void AttachCountry(Country country)
     {
-        if (country.Xl < 1 || country.Xl > Width ||
-            country.Xh < 1 || country.Xh > Width ||
-            country.Yl < 1 || country.Yl > Length ||
-            country.Yh < 1 || country.Yh > Length)
+        if (country.Xl < MinCoordinateValue || country.Xl > MaxWidth ||
+            country.Xh < MinCoordinateValue || country.Xh > MaxWidth ||
+            country.Yl < MinCoordinateValue || country.Yl > MaxLength ||
+            country.Yh < MinCoordinateValue || country.Yh > MaxLength)
         {
-            throw new ArgumentException("The coordinates of a country should be within the range of 1 to 10. " +
+            throw new ArgumentException($"The X coordinates of a country should be within the range of {MinCoordinateValue} to {MaxWidth}," +
+                                        $"and the Y coordinates of a country should be within the range of {MinCoordinateValue} to {MaxLength}." +
                                         $"{country.Name} failed the validation");
         }
 
@@ -72,7 +74,7 @@ public class Map
 
         if (country.Name.Length > MaxCountryNameLength)
         {
-            throw new ArgumentException($"Expected the country name to be no longer than 25 characters. Got {country.Name.Length}, instead.");
+            throw new ArgumentException($"Expected the country name to be no longer than {MaxCountryNameLength} characters. Got {country.Name.Length}, instead.");
         }
 
         var validCities = new List<City>();
@@ -80,7 +82,7 @@ public class Map
         {
             for (var y = country.Yl; y <= country.Yh; y++)
             {
-                if (Countries.Any(c => c.TerritoryIncludesCoordinates(x, y)))
+                if (Countries.Any(intersectingCountry => intersectingCountry.TerritoryIncludesCoordinates(x, y)))
                     throw new ArgumentException("Two or more countries' territories are overlapping. Check your input and try again.");
 
                 validCities.Add(new City(country.Name, x, y));
@@ -97,7 +99,7 @@ public class Map
         foreach (var city in Cities)
         {
             var neighbours = Cities
-                .Where(c => c.IsNeigbouringCity(city))
+                .Where(currentCity => currentCity.IsNeigbouringCity(city))
                 .ToList();
 
             city.AttachNeighbours(neighbours);
@@ -107,11 +109,11 @@ public class Map
     private void InitializeCityCoinBalances()
     {
         var countriesWithNeighbours = Countries
-            .Where(c => c.Cities.Any(ct => ct.SharesBordersWithAnotherCountry()))
-            .Select(c => c.Name)
+            .Where(country => country.Cities.Any(ct => ct.SharesBordersWithAnotherCountry()))
+            .Select(country => country.Name)
             .ToList();
 
-        foreach (var country in Countries.Where(c => countriesWithNeighbours.Contains(c.Name)))
+        foreach (var country in Countries.Where(country => countriesWithNeighbours.Contains(country.Name)))
         {
             foreach (var city in country.Cities)
             {
@@ -119,7 +121,7 @@ public class Map
             }
         }
 
-        foreach (var country in Countries.Where(c => !countriesWithNeighbours.Contains(c.Name)))
+        foreach (var country in Countries.Where(country => !countriesWithNeighbours.Contains(country.Name)))
         {
             foreach (var city in country.Cities)
             {
